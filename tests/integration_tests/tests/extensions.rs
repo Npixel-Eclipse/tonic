@@ -114,7 +114,6 @@ struct InterceptedService<S> {
 impl<S> Service<HyperRequest<Body>> for InterceptedService<S>
 where
     S: Service<HyperRequest<Body>, Response = HyperResponse<BoxBody>>
-        + NamedService
         + Clone
         + Send
         + 'static,

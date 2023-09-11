@@ -39,8 +39,20 @@ impl RoutesBuilder {
         S::Future: Send + 'static,
         S::Error: Into<crate::Error> + Send,
     {
+        self.add_service_with_name(svc, S::NAME)
+    }
+
+    pub fn add_service_with_name<S>(&mut self, svc: S, name: &str) -> &mut Self
+    where
+        S: Service<Request<Body>, Response = Response<BoxBody>, Error = Infallible>
+        + Clone
+        + Send
+        + 'static,
+        S::Future: Send + 'static,
+        S::Error: Into<crate::Error> + Send,
+    {
         let routes = self.routes.take().unwrap_or_default();
-        self.routes.replace(routes.add_service(svc));
+        self.routes.replace(routes.add_service_with_name(svc, name));
         self
     }
 
@@ -76,10 +88,23 @@ impl Routes {
         S::Future: Send + 'static,
         S::Error: Into<crate::Error> + Send,
     {
+        self.add_service_with_name(svc, S::NAME)
+    }
+
+    /// Add a new service with a custom name
+    pub fn add_service_with_name<S>(mut self, svc: S, name: &str) -> Self
+        where
+            S: Service<Request<Body>, Response = Response<BoxBody>, Error = Infallible>
+            + Clone
+            + Send
+            + 'static,
+            S::Future: Send + 'static,
+            S::Error: Into<crate::Error> + Send,
+    {
         let svc = svc.map_response(|res| res.map(axum::body::boxed));
         self.router = self
             .router
-            .route_service(&format!("/{}/*rest", S::NAME), svc);
+            .route_service(&format!("/{}/*rest", name), svc);
         self
     }
 
