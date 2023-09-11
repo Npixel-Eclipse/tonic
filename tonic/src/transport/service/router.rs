@@ -78,6 +78,20 @@ impl Routes {
         Self { router }.add_service(svc)
     }
 
+    /// Create a new routes with `svc` already added to it with a custom name.
+    pub fn new_with_name<S>(svc: S, name: &str) -> Self
+    where
+        S: Service<Request<Body>, Response = Response<BoxBody>, Error = Infallible>
+        + Clone
+        + Send
+        + 'static,
+        S::Future: Send + 'static,
+        S::Error: Into<crate::Error> + Send,
+    {
+        let router = axum::Router::new().fallback(unimplemented);
+        Self { router }.add_service_with_name(svc, name)
+    }
+
     /// Add a new service.
     pub fn add_service<S>(self, svc: S) -> Self
     where

@@ -370,6 +370,22 @@ impl<L> Server<L> {
         Router::new(self.clone(), Routes::new(svc))
     }
 
+    /// Create a router with the `S` typed service as the first service with the given name.
+    ///
+    /// This will clone the `Server` builder and create a router that will
+    /// route around different services.
+    pub fn add_service_with_name<S>(&mut self, svc:S, name: &str) -> Router<L>
+    where
+        S: Service<Request<Body>, Response = Response<BoxBody>, Error = Infallible>
+        + Clone
+        + Send
+        + 'static,
+        S::Future: Send + 'static,
+        L: Clone,
+    {
+        Router::new(self.clone(), Routes::new_with_name(svc, name))
+    }
+
     /// Create a router with the optional `S` typed service as the first service.
     ///
     /// This will clone the `Server` builder and create a router that will
