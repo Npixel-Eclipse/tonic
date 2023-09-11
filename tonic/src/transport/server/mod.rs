@@ -567,7 +567,7 @@ impl<L> Router<L> {
 
 impl<L> Router<L> {
     /// Add a new service to this router.
-    pub fn add_service<S>(mut self, svc: S) -> Self
+    pub fn add_service<S>(self, svc: S) -> Self
     where
         S: Service<Request<Body>, Response = Response<BoxBody>, Error = Infallible>
             + NamedService
@@ -576,7 +576,18 @@ impl<L> Router<L> {
             + 'static,
         S::Future: Send + 'static,
     {
-        self.routes = self.routes.add_service(svc);
+        self.add_service_with_name(svc, S::NAME)
+    }
+
+    /// Add a new service to this router with a custom name.
+    pub fn add_service_with_name<S>(mut self, svc: S, name: &str) -> Self
+    where S: Service<Request<Body>, Response = Response<BoxBody>, Error = Infallible>
+    + Clone
+    + Send
+    + 'static,
+          S::Future: Send + 'static,
+    {
+        self.routes = self.routes.add_service_with_name(svc, name);
         self
     }
 

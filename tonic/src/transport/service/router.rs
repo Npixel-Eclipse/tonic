@@ -42,6 +42,7 @@ impl RoutesBuilder {
         self.add_service_with_name(svc, S::NAME)
     }
 
+    /// Add a new service with a custom name.
     pub fn add_service_with_name<S>(&mut self, svc: S, name: &str) -> &mut Self
     where
         S: Service<Request<Body>, Response = Response<BoxBody>, Error = Infallible>
@@ -78,7 +79,7 @@ impl Routes {
     }
 
     /// Add a new service.
-    pub fn add_service<S>(mut self, svc: S) -> Self
+    pub fn add_service<S>(self, svc: S) -> Self
     where
         S: Service<Request<Body>, Response = Response<BoxBody>, Error = Infallible>
             + NamedService
